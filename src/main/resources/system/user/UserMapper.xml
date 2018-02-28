@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="system.user.mapper.UserMapper">
+
+	<!-- 映射 -->
+	<resultMap id="BaseResultMap" type="system.user.model.UserModel">
+		<result column="id" property="id" />
+		<result column="username" property="username" />
+		<result column="code" property="code" />
+		<result column="password" property="password" />
+		<result column="isseller" property="isseller" />
+		<result column="createtime" property="createtime" />
+		<result column="updatetime" property="updatetime" />
+		<result column="creator" property="creator" />
+		<result column="updater" property="updater" />
+		<result column="isdelete" property="isdelete" />
+		<result column="iseffect" property="iseffect" />
+	</resultMap>
+
+	<!-- 全部字段 -->
+	<sql id="Base_Column_List">
+		id, username, code, password, isseller, createtime, updatetime, creator, updater, isdelete, iseffect
+	</sql>
+
+	<!-- 查询条件 -->
+	<sql id="Example_Where_Clause">
+		where 1=1
+		<trim suffixOverrides=",">
+			<if test="id != null">
+				and id = #{id}
+			</if>
+			<if test="username != null and username != ''">
+				and username = #{username}
+			</if>
+			<if test="password != null and password != ''">
+				and password = #{password}
+			</if>
+			
+			<if test="code != null and code != ''">
+				and code = #{code}
+			</if>	
+			<if test="isseller != null and isseller != ''">
+				and isseller = #{isseller}
+			</if>	
+			<if test="creator != null and creator != ''">
+				and creator = #{creator}
+			</if>	
+			<if test="updater != null and updater != ''">
+				and updater = #{updater}
+			</if>	
+			<if test="isdelete != null and isdelete != ''">
+				and isdelete = #{isdelete}
+			</if>	
+			<if test="iseffect != null and iseffect != ''">
+				and iseffect = #{iseffect}
+			</if>	
+		</trim>
+	</sql>
+
+	<!-- 插入记录 -->
+	<insert id="insert" parameterType="Object">
+		<selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="id">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+		insert into user 
+		(id, username, code, password, isseller, createtime, updatetime, creator, updater, isdelete, iseffect)
+		values(#{id}, #{username}, #{code}, #{password}, #{isseller}, #{createtime}, #{updatetime}, #{creator}, #{updater}, #{isdelete}, #{iseffect})
+	</insert>
+
+	<!-- 根据code删除记录 -->
+	<delete id="delete" parameterType="Object">
+		delete from user where code = #{code}
+	</delete>
+	
+	<!-- 根据code，修改记录 -->
+	<update id="update"  parameterType="Object">
+		update user set
+		username=#{username}, code=#{code}, password=#{password}, isseller=#{isseller}, createtime=#{createtime}, updatetime=#{updatetime}, creator=#{creator}, updater=#{updater}, isdelete=#{isdelete}, iseffect=#{iseffect}
+		where code = #{code}
+	</update>
+
+	
+	<!-- 多条件查询 系统用户 -->
+	<select id="select" resultMap="BaseResultMap" parameterType="Object">
+		select <include refid="Base_Column_List" />
+		from user
+		<include refid="Example_Where_Clause" />
+	</select>
+
+	<!-- 系统用户 列表总数 -->
+	<select id="selectCount" resultType="java.lang.Integer" parameterType="Object">
+		select count(1) from user
+		<include refid="Example_Where_Clause" />
+	</select>
+
+</mapper>   

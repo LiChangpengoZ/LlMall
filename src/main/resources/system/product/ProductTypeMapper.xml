@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="system.product.mapper.ProductTypeMapper">
+
+	<!-- 映射 -->
+	<resultMap id="BaseResultMap" type="system.product.model.ProductTypeModel">
+		<result column="id" property="id" />
+		<result column="typename" property="typename" />
+		<result column="code" property="code" />
+		<result column="descr" property="descr" />
+		<result column="parentcode" property="parentcode" />
+		<result column="createtime" property="createtime" />
+		<result column="updatetime" property="updatetime" />
+		<result column="creator" property="creator" />
+		<result column="updater" property="updater" />
+		<result column="isdelete" property="isdelete" />
+		
+		<result column="orderby" property="orderby" />
+		
+	</resultMap>
+
+	<!-- 全部字段 -->
+	<sql id="Base_Column_List">
+		id, typename, code, descr, parentcode, createtime, updatetime, creator, updater, isdelete, iseffect
+	</sql>
+
+	<!-- 查询条件 -->
+	<sql id="Example_Where_Clause">
+		where 1=1
+		<trim suffixOverrides=",">
+			<if test="id != null">
+				and id = #{id}
+			</if>
+			<if test="typename != null and typename != ''">
+				and typename = #{typename}
+			</if>
+			<if test="code != null and code != ''">
+				and code = #{code}
+			</if>	
+			<if test="parentcode != null and parentcode != ''">
+				and parentcode = #{parentcode}
+			</if>	
+			<if test="creator != null and creator != ''">
+				and creator = #{creator}
+			</if>	
+			<if test="updater != null and updater != ''">
+				and updater = #{updater}
+			</if>	
+			<if test="isdelete != null and isdelete != ''">
+				and isdelete = #{isdelete}
+			</if>	
+			<if test="iseffect != null and iseffect != ''">
+				and iseffect = #{iseffect}
+			</if>	
+		</trim>
+	</sql>
+
+	<!-- 插入记录 -->
+	<insert id="insert" parameterType="Object">
+		<selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="id">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+		insert into product_type 
+		(id, typename, code, descr, parentcode, createtime, updatetime, creator, updater, isdelete, iseffect)
+		values(#{id}, #{typename}, #{code}, #{descr}, #{parentcode}, #{createtime}, #{updatetime}, #{creator}, #{updater}, #{isdelete}, #{iseffect})
+	</insert>
+
+	<!-- 删除记录 -->
+	<delete id="delete" parameterType="Object">
+		delete from product_type where code = #{code}
+	</delete>
+	
+	<!-- 根据code，修改记录 -->
+	<update id="update"  parameterType="Object">
+		update product_type set
+		<trim suffixOverrides=",">
+			<if test="typename != null and typename != '' ">
+				typename = #{typename},
+			</if>
+			<if test="updater != null and updater != '' ">
+				updater = #{updater},
+			</if>
+			<if test="orderby != null and orderby != '' ">
+				orderby = #{orderby},
+			</if>
+		</trim>	
+		where code = #{code}
+	</update>
+
+	<!-- 排序多条件查询 系统用户 -->
+	<select id="select" resultMap="BaseResultMap" parameterType="Object" >
+		select typename,code,parentcode
+		from product_type
+		<include refid="Example_Where_Clause" />
+		<if test="sortField != null and sortField != ''">
+			order by ${sortField} ${orderBy}
+		</if>
+	</select>
+
+	<!-- 系统用户 列表总数 -->
+	<select id="selectCount" resultType="java.lang.Integer" parameterType="Object">
+		select count(1) from product_type
+		<include refid="Example_Where_Clause" />
+	</select>
+	
+</mapper>   

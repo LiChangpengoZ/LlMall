@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="system.product.mapper.ProductMapper">
+
+	<!-- 映射 -->
+	<resultMap id="BaseResultMap" type="system.product.model.ProductModel">
+		<result column="id" property="id" />
+		<result column="productname" property="productname" />
+		<result column="code" property="code" />
+		<result column="money" property="money" />
+		<result column="descr" property="descr" />
+		<result column="number" property="number" />
+		<result column="usercode" property="usercode" />
+		<result column="url" property="url" />
+		<result column="state" property="state" />
+		<result column="product_typecode" property="productTypecode" />
+		<result column="createtime" property="createtime" />
+		<result column="updatetime" property="updatetime" />
+		<result column="creator" property="creator" />
+		<result column="updater" property="updater" />
+		<result column="isdelete" property="isdelete" />
+		<result column="iseffect" property="iseffect" />
+	</resultMap>
+
+	<!-- 全部字段 -->
+	<sql id="Base_Column_List">
+		id, productname, code, money, descr, number, usercode, url, state, product_typecode, createtime, updatetime, creator, updater, isdelete, iseffect
+	</sql>
+	
+	<!-- 主要的字段 -->
+	<sql id="Main_Column_List">
+		id, productname, money, descr, number, usercode, url,  product_typecode
+	</sql>
+
+	<!-- 查询条件 -->
+	<sql id="Example_Where_Clause">
+		where 1=1
+		<trim suffixOverrides=",">
+			<if test="id != null">
+				and id = #{id}
+			</if>
+			<if test="code != null">
+				and code = #{code}
+			</if>
+			<if test="productname != null and productname != ''">
+				and productname like CONCAT('%', #{productname}, '%')
+			</if>			
+			<if test="usercode != null and usercode != ''">
+				and usercode = #{usercode}
+			</if>
+			<if test="state != null">
+				and state = #{state}
+			</if>
+			<if test="productTypecode != null and productTypecode != ''">
+				and product_typecode = #{productTypecode}
+			</if>
+		</trim>
+	</sql>
+
+	<!-- 插入记录 -->
+	<insert id="insert" parameterType="Object">
+		<selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="id">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+		insert into product
+		(id, productname, code, money, descr, number, usercode, url, state, product_typecode, createtime, updatetime, creator, updater, isdelete, iseffect)
+		values(#{id}, #{productname}, #{code}, #{money}, #{descr}, #{number}, #{usercode}, #{url}, #{state}, #{productTypecode}, #{createtime}, #{updatetime}, #{creator}, #{updater}, #{isdelete}, #{iseffect})
+	</insert>
+
+	<!-- 删除记录 -->
+	<delete id="delete" parameterType="Object">
+		delete from product where id = #{id}
+	</delete>
+	
+	<!-- 多条件删除 -->
+	<delete id="deleteModel" parameterType="Object">
+		delete from product
+		<include refid="Example_Where_Clause" />
+	</delete>
+
+	<!-- 根据code，修改不为空的记录 -->
+	<update id="update" parameterType="Object">
+		update product set
+		<trim suffixOverrides=",">
+			<if test="productname != null and productname != '' ">
+				productname = #{productname},
+			</if>
+			<if test="money != null and money != '' ">
+				money = #{money},
+			</if>
+			<if test="descr != null and descr != '' ">
+				descr = #{descr},
+			</if>
+			<if test="money != null and money != '' ">
+				number = #{number},
+			</if>
+			<if test="url != null and url != '' ">
+				url = #{url},
+			</if>
+			<if test="productTypecode != null and productTypecode != '' ">
+				product_typecode = #{productTypecode},
+			</if>
+			<if test="createtime != null and createtime != '' ">
+				createtime = #{createtime},
+			</if>
+			<if test="updatetime != null and updatetime != '' ">
+				updatetime = #{updatetime},
+			</if>
+			<if test="creator != null and creator != '' ">
+				creator = #{creator},
+			</if>
+			<if test="updater != null and updater != '' ">
+				updater = #{updater},
+			</if>
+			<if test="isdelete != null ">
+				isdelete = #{isdelete},
+			</if>	
+			<if test="iseffect != null ">
+				iseffect = #{iseffect},
+			</if>		
+		</trim>
+		where code = #{code}
+	</update>
+
+	<!-- 查询商家的商品 -->
+	<select id="selectBySeller" resultMap="BaseResultMap" parameterType="Object">
+		select
+		productname, code, money, descr, number, url, product_typecode, createtime
+		from product where usercode = #{code}
+	</select>
+
+	<!-- 系统用户列表总数 -->
+	<select id="selectCount" resultType="java.lang.Integer" parameterType="Object">
+		select count(1) from product
+		<include refid="Example_Where_Clause" />
+	</select>
+
+	<!-- 分页查询商品 -->
+	<select id="select" resultMap="BaseResultMap" parameterType="Object">
+		select <include refid="Base_Column_List" />
+		from product
+		<include refid="Example_Where_Clause" />
+		<if test="rowsNumber != null and rowsNumber != '' and pageNumber != null and pageNumber != '' ">
+		limit #{beginNumber},#{rowsNumber}
+		</if>
+	</select>
+	
+</mapper>   

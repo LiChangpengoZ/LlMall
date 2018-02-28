@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="system.order.mapper.OrderMapper">
+
+	<!-- 映射 -->
+	<resultMap id="BaseResultMap" type="system.order.model.OrderModel">
+		<result column="id" property="id" />
+		<result column="code" property="code" />
+		<result column="usercode" property="usercode" />
+		<result column="productcode" property="productcode" />
+		<result column="number" property="number" />
+		<result column="money" property="money" />
+		<result column="addresscode" property="addresscode" />
+		<result column="state" property="state" />
+		<result column="createtime" property="createtime" />
+		<result column="updatetime" property="updatetime" />
+		<result column="creator" property="creator" />
+		<result column="updater" property="updater" />
+		<result column="isdelete" property="isdelete" />
+		<result column="iseffect" property="iseffect" />	
+	</resultMap>
+
+	<!-- 全部字段 -->
+	<sql id="Base_Column_List">
+		myorder.id,myorder.code, usercode, productcode, number, money, addresscode, state, createtime, updatetime, creator, updater, isdelete, iseffect		
+	</sql>
+	
+	<!-- 主要字段 -->
+	<sql id="Main_Column_List">
+		myorder.id,myorder.code, usercode, productcode, number, money, addresscode
+	</sql>
+	
+	<!-- 成功页面的字段，姓名，电话，地址 -->
+	<sql id="Success_Column_List">
+		myorder.id,myorder.code, address.recipe arecipe,address.telephone atelephone,
+		(select d.name
+		from dictionary d 
+		where d.code = address.sheng) asheng, 
+		(select d.name
+		from dictionary d 
+		where d.code = address.shi) ashi, 
+		(select d.name
+		from dictionary d 
+		where d.code = address.qu) aqu, 
+		address.full afull ,money
+	</sql>
+	
+	<!-- 查询条件 -->
+	<sql id="Example_Where_Clause">
+		where 1=1
+		<trim suffixOverrides=",">
+			<if test="code != null and code != ''">
+				and myorder.code = #{code}
+			</if>	
+		</trim>
+	</sql>
+
+	<!-- 插入记录 -->
+	<insert id="insert" parameterType="Object">
+		<selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="id">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+		insert into myorder
+		(
+		<include refid="Base_Column_List" />
+		)
+		values(#{id},#{code}, #{usercode}, #{productcode}, #{number}, #{money}, #{addresscode}, #{state}, #{createtime}, #{updatetime}, #{creator}, #{updater}, #{isdelete}, #{iseffect})
+	</insert>
+	
+	<!-- 插入记录 插入orderandproduct表 -->
+	<insert id="insertOAP" parameterType="Object">
+		<selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="id">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+		insert into orderandproduct
+		(id, ordercode, productcode, productnumber)
+		values(#{id},#{ordercode},#{productcode},#{productnumber})
+	</insert>
+
+	<!-- 根据code删除记录 -->
+	<delete id="delete" parameterType="Object">
+		delete from myorder where code = #{code}
+	</delete>
+	
+	<!-- 多条件删除记录 -->
+	<delete id="deleteModel" parameterType="Object">
+		delete from myorder
+		<include refid="Example_Where_Clause" />
+	</delete>
+	
+	<!-- 修改记录，只修改只不为空的字段 -->
+	<update id="updateActive" parameterType="Object">
+		update myorder set
+		<trim suffixOverrides=",">
+			<if test="code != null and code != '' ">
+				code = #{code},
+			</if>
+			<if test="usercode != null and usercode != '' ">
+				usercode = #{usercode},
+			</if>
+			<if test="productcode != null and productcode != '' ">
+				productcode = #{productcode},
+			</if>
+			<if test="number != null and number != '' ">
+				number = #{number},
+			</if>
+			<if test="money != null and money != '' ">
+				money = #{money},
+			</if>
+			<if test="addresscode != null and addresscode != '' ">
+				addresscode = #{addresscode},
+			</if>
+			<if test="state != null and state != '' ">
+				qu = #{state},
+			</if>
+			<if test="createtime != null and createtime != '' ">
+				createtime = #{createtime},
+			</if>
+			<if test="updatetime != null and updatetime != '' ">
+				updatetime = #{updatetime},
+			</if>
+			<if test="creator != null and creator != '' ">
+				creator = #{creator},
+			</if>
+			<if test="updater != null and updater != '' ">
+				updater = #{updater},
+			</if>
+			<if test="isdelete != null ">
+				isdelete = #{isdelete},
+			</if>	
+			<if test="iseffect != null ">
+				iseffect = #{iseffect},
+			</if>		
+		</trim>
+		where code = #{code}
+	</update>
+	
+	<!-- 根据code查询  -->
+	<select id="selectCode" resultMap="BaseResultMap" parameterType="Object">
+		select <include refid="Main_Column_List" />
+		from myorder				
+		where code = #{code}
+	</select>
+
+	<!-- 查询数量 -->
+	<select id="selectCount" resultType="java.lang.Integer" parameterType="Object">
+		select count(1) 
+		from  myorder
+		<include refid="Example_Where_Clause" />
+	</select>
+	
+	<!-- 查询的基础资源 -->
+	<select id="select" resultMap="BaseResultMap" parameterType="Object">
+		select <include refid="Main_Column_List" />
+		from  myorder		
+		<include refid="Example_Where_Clause" />
+	</select>
+	
+	<!-- 查询成功页面的信息 -->
+	<select id="selectSucess" resultType="java.util.HashMap" parameterType="Object">
+		select <include refid="Success_Column_List" />
+		from  myorder
+		left outer join address on myorder.addresscode = address.code		
+		<include refid="Example_Where_Clause" />
+	</select>	
+	
+	<!-- 查询 全部的，包括图片啥的-->
+	<select id="selectAll" resultType="java.util.HashMap" parameterType="Object">
+		select 
+		o.code ocode,o.money omoney,o.createtime createtime,
+		p.productname pproductname,p.code pcode,p.money pmoney,p.url purl,
+		oap.productnumber oapnumber
+		from  myorder o
+		left outer join orderandproduct oap on oap.ordercode = o.code	
+		left outer join product p on oap.productcode = p.code	
+		where o.usercode=#{usercode}
+	</select>
+	
+	<!-- 查询 全部的，根据code，包括图片啥的-->
+	<select id="selectAllByCode" resultType="java.util.HashMap" parameterType="Object">
+		select 
+		o.code ocode,o.money omoney,o.createtime createtime,
+		p.productname pproductname,p.code pcode,p.money pmoney,p.url purl,
+		oap.productnumber oapnumber
+		from  myorder o
+		left outer join orderandproduct oap on oap.ordercode = o.code	
+		left outer join product p on oap.productcode = p.code	
+		where o.code=#{code}
+	</select>
+	
+	<!-- 查询 全部的，根据code，包括图片啥的-->
+	<select id="selectAllBySeller" resultType="java.util.HashMap" parameterType="Object">
+		select 
+		o.code ocode,o.money omoney,o.createtime createtime,o.usercode ucode,
+		p.productname pproductname,p.code pcode,p.money pmoney,p.url purl,
+		oap.productnumber oapnumber,
+		u.username uname
+		from  myorder o
+		left outer join user u on o.usercode = u.code  
+		left outer join orderandproduct oap on oap.ordercode = o.code	
+		left outer join product p on oap.productcode = p.code	
+		where p.usercode=#{usercode}
+		<if test="sbegintime != null and sbegintime != '' and sendtime != null and sendtime != ''">
+			and o.createtime between #{sbegintime} and #{sendtime}
+		</if>
+		<if test="susername != null and susername != ''">
+			and u.username like CONCAT('%', #{susername}, '%')
+		</if>
+		<if test="sproname != null and sproname != ''">
+			and p.productname like CONCAT('%', #{sproname}, '%')
+		</if>
+	</select>
+	
+</mapper>   

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="system.order.mapper.ShopCarMapper">
+
+	<!-- 映射 -->
+	<resultMap id="BaseResultMap" type="system.order.model.ShopCarModel">
+		<result column="id" property="id" />
+		<result column="usercode" property="usercode" />
+		<result column="productcode" property="productcode" />
+		<result column="number" property="number" />
+		<result column="createtime" property="createtime" />
+		<result column="updatetime" property="updatetime" />
+		<result column="creator" property="creator" />
+		<result column="updater" property="updater" />
+		<result column="isdelete" property="isdelete" />
+		<result column="iseffect" property="iseffect" />
+		<result column="purl" property="purl" />
+		<result column="pproductname" property="pproductname" />
+		<result column="pmoney" property="pmoney" />
+	</resultMap>
+
+	<!-- 全部字段 -->
+	<sql id="Base_Column_List">
+		id, usercode, productcode, number, createtime, updatetime, creator, updater, isdelete, iseffect
+	</sql>
+	
+	<!-- 主要字段 -->
+	<sql id="Main_Column_List">
+		shoppingcart.id, shoppingcart.usercode, shoppingcart.productcode, shoppingcart.number,product.productname pproductname,product.money pmoney,product.url purl
+	</sql>
+
+	<!-- 查询条件 -->
+	<sql id="Example_Where_Clause">
+		where 1=1
+		<trim suffixOverrides=",">
+			<if test="usercode != null and usercode != ''">
+				and shoppingcart.usercode = #{usercode}
+			</if>	
+			<if test="productcode != null and productcode != ''">
+				and shoppingcart.productcode =#{productcode}
+			</if>			
+		</trim>
+	</sql>
+
+	<!-- 插入记录 -->
+	<insert id="insert" parameterType="Object">
+		<selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="id">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
+		insert into shoppingcart
+		(
+		<include refid="Base_Column_List" />
+		)
+		values(#{id}, #{usercode}, #{productcode}, #{number}, #{createtime}, #{updatetime}, #{creator}, #{updater}, #{isdelete}, #{iseffect})
+	</insert>
+
+	<!-- 删除记录 -->
+	<delete id="delete" parameterType="Object">
+		delete from shoppingcart where usercode = #{usercode}
+	</delete>
+	
+	<!-- 多条件删除 -->
+	<delete id="deleteModel" parameterType="Object">
+		delete from shoppingcart
+		<include refid="Example_Where_Clause" />
+	</delete>
+
+	<!-- 查询是否重复 -->
+	<select id="selectRe" resultType="java.lang.Integer" parameterType="Object">
+		select count(1) 
+		from shoppingcart
+		<include refid="Example_Where_Clause" />
+	</select>
+	
+	<!-- 根据productcode和usercode查询number -->
+	<select id="selectNumByPc" resultType="java.lang.Integer" parameterType="Object">
+		select number 
+		from shoppingcart
+		where productcode = #{productcode} and usercode=#{usercode}
+	</select>
+
+	<!-- 根据productcode和usercode，修改number -->
+	<update id="updateNumByPc" parameterType="Object">
+		update shoppingcart set
+		number=#{number}
+		where productcode = #{productcode} and usercode=#{usercode}
+	</update>
+	
+	<!-- 根据usercode和productcode删除 -->
+	<delete id="deleteByPc" parameterType="Object">
+		delete from shoppingcart 
+		where productcode = #{productcode} and usercode=#{usercode}
+	</delete>
+
+	<!-- 查询购物车的数量 -->
+	<select id="selectCount" resultType="java.lang.Integer" parameterType="Object">
+		select count(1) 
+		from shoppingcart
+		left outer join product on shoppingcart.productcode = product.code		
+		<include refid="Example_Where_Clause" />
+	</select>
+
+	<!-- 多条件查询购物车表 -->
+	<select id="select" resultMap="BaseResultMap" parameterType="Object">
+		select <include refid="Main_Column_List" />
+		from shoppingcart
+		left outer join product on shoppingcart.productcode = product.code		
+		<include refid="Example_Where_Clause" />
+	</select>
+
+</mapper>   
